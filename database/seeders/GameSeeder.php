@@ -17,7 +17,8 @@ class GameSeeder extends Seeder
     {
         Game::query()->delete();
         foreach(Player::all() as $player) {
-            foreach(range(1,25) as $num) {
+            $numGames = rand(20,50);
+            foreach(range(1,$numGames) as $num) {
                 $game = Game::factory()->make(['game_number' => $num, 'player_id' => $player->id]);
                 $player->games()->save($game);
             }
