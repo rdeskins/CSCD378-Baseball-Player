@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use \App\Models\Game;
 use \App\Models\Player;
+use Illuminate\Validation\Rule;
 
 class GameController extends Controller
 {
@@ -45,7 +46,7 @@ class GameController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $this->validateData($request);
+        $validatedData = $this->validateData($request, $id);
         $game = Game::findOrFail($id);
         $player = Player::findOrFail($request->player_id);
         $game->update($validatedData);
@@ -67,9 +68,16 @@ class GameController extends Controller
         return redirect()->route('players.show', $game->player_id)->with('success', "Game #$game->game_number was deleted!");
     }
 
-    private function validateData($request) {
+    private function validateData($request, $id=0) {
         $rules = [
-            'game_number' => 'required|integer|between:1,162',
+            'game_number' => [
+                'required',
+                'integer',
+                'between:1,162',
+                Rule::unique('games')->where(function($query) use ($request) {
+                    return $query->where('player_id', $request->player_id)->where('game_number', $request->game_number);
+                })->ignore($id),
+            ],
             'at_bats' => 'required|integer|gte:0',
             'runs' => 'required|integer|gte:0|lte:at_bats',
             'hits' => 'required|integer|gte:0|lte:at_bats',
