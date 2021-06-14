@@ -68,13 +68,17 @@ class GameController extends Controller
     }
 
     private function validateData($request) {
-        return $request->validate([
+        $rules = [
             'game_number' => 'required|integer|between:1,162',
             'at_bats' => 'required|integer|gte:0',
             'runs' => 'required|integer|gte:0|lte:at_bats',
             'hits' => 'required|integer|gte:0|lte:at_bats',
             'walks' => 'required|integer|gte:0|lte:at_bats',
             'runs_batted_in' => 'required|integer|gte:0|lte:at_bats'
-        ]);
+        ];
+        $messages = [
+            'lte' => ':Attribute must be less than or equal to at bats.'
+        ];
+        return $request->validate($rules, $messages);
     }
 }
